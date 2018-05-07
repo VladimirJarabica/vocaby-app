@@ -2,3 +2,5 @@ node_modules/**/*
 .expo/*
 npm-debug.*
 .idea/
+config.js
+./configs/
