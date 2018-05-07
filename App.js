@@ -21,56 +21,48 @@ export default class App extends React.Component {
     });
   }
 
-  async signInWithGoogleAsync() {
-    try {
-      const result = await Expo.Google.logInAsync({
-        androidClientId: config.androidClientId,
-        iosClientId: config.iosClientId,
-        scopes: ["profile", "email"],
-      });
-      return result;
-
-      // if (result.type === 'success') {
-      //   return result.accessToken;
-      // } else {
-      //   return {cancelled: true};
-      // }
-    } catch (e) {
-      return { error: e };
-    }
-  }
+  // TODO: move to services
+  signInWithGoogleAsync = () =>
+    Expo.Google.logInAsync({
+      androidClientId: config.androidClientId,
+      iosClientId: config.iosClientId,
+      scopes: ["profile", "email"],
+    });
 
   login = async () => {
     // const provider = new firebase.auth.GoogleAuthProvider();
-    const result = await this.signInWithGoogleAsync();
-    console.log("provider", result);
+    try {
+      const result = await this.signInWithGoogleAsync();
+      console.log("provider", result);
 
-    if (result.type === "success") {
-      const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken, result.accessToken);
-      firebase.auth().signInWithCredential(credential).catch((error) => {
-        // Handle Errors here.
-        console.log("error", error)
-      });
+      if (result.type === "success") {
+        const credential = firebase.auth.GoogleAuthProvider.credential(
+          result.idToken,
+          result.accessToken,
+        );
+        firebase
+          .auth()
+          .signInWithCredential(credential)
+          .catch(error => {
+            // Handle Errors here.
+            console.log("error", error);
+          });
+      }
+    } catch (err) {
+      console.log("error", err);
     }
-    // firebase
-    //   .auth()
-    //   .signInWithPopup(provider)
-    //   .then(result => {
-    //     // This gives you a Google Access Token. You can use it to access the Google API.
-    //     var token = result.credential.accessToken;
-    //     // The signed-in user info.
-    //     this.setState({ user: result.user });
-    //   });
+  };
+
+  logout = () => {
+    firebase.auth().signOut();
   };
 
   render() {
     return (
       <View style={styles.container}>
         <Text>{this.state.user && this.state.user.uid}</Text>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Button onPress={this.login} title="Hi">
-          Login
-        </Button>
+        <Button onPress={this.login} title="Login" />
+        <Button onPress={this.logout} title="Logout" />
       </View>
     );
   }
